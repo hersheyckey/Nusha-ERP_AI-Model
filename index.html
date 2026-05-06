@@ -1,179 +1,139 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nusha AI – Login</title>
-
+<title>Nusha AI</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-body { font-family: system-ui; display:flex; align-items:center; justify-content:center; height:100vh; background:#f0f2f5; margin:0; }
-.modal, .chat { background:white; border-radius:24px; padding:32px; width:400px; box-shadow:0 20px 40px rgba(0,0,0,0.1); }
-.chat { width:800px; max-width:90%; display:flex; flex-direction:column; height:80vh; }
-input, button { width:100%; padding:12px; margin:8px 0; border-radius:40px; border:1px solid #ccc; }
-button { background:#1e2a3a; color:white; cursor:pointer; font-weight:bold; }
-.google-btn { background:#4285F4; }
-.hidden { display:none; }
-.messages { flex:1; overflow-y:auto; border:1px solid #eee; padding:16px; margin-bottom:16px; }
-.user { text-align:right; color:white; background:#1e2a3a; display:inline-block; padding:8px 12px; border-radius:18px; }
-.ai { text-align:left; background:#f1f3f4; display:inline-block; padding:8px 12px; border-radius:18px; }
-.error { color:red; font-size:12px; text-align:center; }
+body{font-family:system-ui;display:flex;justify-content:center;align-items:center;height:100vh;background:#f5f5f5}
+.box{background:white;padding:30px;border-radius:20px;width:400px}
+.chat{display:none;width:800px;height:80vh;flex-direction:column}
+input,button{width:100%;padding:10px;margin:5px}
+.messages{flex:1;overflow:auto;border:1px solid #ddd;padding:10px}
+.user{text-align:right;background:#333;color:white;padding:5px;border-radius:10px;margin:5px}
+.ai{text-align:left;background:#eee;padding:5px;border-radius:10px;margin:5px}
 </style>
 </head>
 
 <body>
 
-<div id="modal" class="modal">
-<h2>Nusha AI</h2>
-<button id="googleBtn" class="google-btn">Sign in with Google</button>
-<hr>
-<input type="email" id="email" placeholder="Email">
-<input type="password" id="password" placeholder="Password">
-<button id="loginBtn">Sign in</button>
-<button id="signupBtn">Sign up</button>
-<div id="errorMsg" class="error"></div>
+<div id="loginBox" class="box">
+<h2>Login</h2>
+<input id="email" placeholder="email">
+<input id="password" type="password" placeholder="password">
+<button onclick="login()">Login</button>
+<button onclick="signup()">Signup</button>
+<button onclick="google()">Google</button>
 </div>
 
-<div id="chatContainer" class="chat hidden">
-<div style="font-weight:bold;margin-bottom:16px;">Nusha – ERP Assistant</div>
-<div id="messages" class="messages"></div>
-<div style="display:flex;gap:8px;">
-<input type="text" id="messageInput">
-<button id="sendBtn" style="width:auto;">Send</button>
-</div>
+<div id="chat" class="chat">
+<div class="messages" id="messages"></div>
+<input id="msg">
+<button onclick="send()">Send</button>
 </div>
 
 <script>
-const SUPABASE_URL = 'https://yobjqkuxarnvgfbkbdee.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlvYmpxa3V4YXJudmdmYmtiZGVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwNTg4NDcsImV4cCI6MjA5MzYzNDg0N30.xm3QWnTap_O6Qfo5-Fu3irL-kLXg7YFaXoqeNrvpG5s';
+const supabase = window.supabase.createClient(
+"https://yobjqkuxarnvgfbkbdee.supabase.co",
+"YOUR_ANON_KEY"
+);
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let sessionId = null;
 
-let currentSessionId = null;
-
-const modal = document.getElementById('modal');
-const chat = document.getElementById('chatContainer');
-const messages = document.getElementById('messages');
-const input = document.getElementById('messageInput');
-
-function showChat(){ modal.classList.add('hidden'); chat.classList.remove('hidden'); }
-function showLogin(){ modal.classList.remove('hidden'); chat.classList.add('hidden'); }
-
-// ✅ Session check
-async function checkSession(){
-    const { data:{ session } } = await supabase.auth.getSession();
-    if(session){
-        showChat();
+// ✅ AUTH FIX (single source of truth)
+supabase.auth.onAuthStateChange(async (_, session) => {
+    if (session) {
+        document.getElementById("loginBox").style.display="none";
+        document.getElementById("chat").style.display="flex";
         await initSession();
-    } else showLogin();
-}
-
-// ✅ Auth listener (fixes OAuth)
-supabase.auth.onAuthStateChange((event, session)=>{
-    if(session){
-        showChat();
-        initSession();
-    } else showLogin();
+    } else {
+        document.getElementById("loginBox").style.display="block";
+        document.getElementById("chat").style.display="none";
+    }
 });
 
-// ✅ Login
-async function login(email,password){
-    const { error } = await supabase.auth.signInWithPassword({email,password});
-    if(error){
-        errorMsg.innerText = error.message;
-        return;
-    }
+async function login(){
+    const { error } = await supabase.auth.signInWithPassword({
+        email: email.value,
+        password: password.value
+    });
+    if(error) alert(error.message);
 }
 
-// ✅ Signup
-async function signup(email,password){
-    const { error } = await supabase.auth.signUp({email,password});
-    if(error){
-        errorMsg.innerText = error.message;
-        return;
-    }
-    alert("Signup successful");
+async function signup(){
+    const { error } = await supabase.auth.signUp({
+        email: email.value,
+        password: password.value
+    });
+    if(error) alert(error.message);
+    else alert("Check email (if confirmation enabled)");
 }
 
-// ✅ Google
-async function googleLogin(){
+async function google(){
     await supabase.auth.signInWithOAuth({
-        provider:'google',
+        provider:"google",
         options:{ redirectTo: window.location.origin }
     });
 }
 
-// ✅ Create backend session
 async function initSession(){
     const { data:{ session } } = await supabase.auth.getSession();
-    const token = session?.access_token;
-    if(!token) return;
 
-    const res = await fetch('/session',{
-        method:'POST',
-        headers:{ Authorization:`Bearer ${token}` }
+    const res = await fetch("/session", {
+        method:"POST",
+        headers:{
+            Authorization:`Bearer ${session.access_token}`
+        }
     });
 
     const data = await res.json();
-    currentSessionId = data.session_id;
+    sessionId = data.session_id;
 
-    addMessage("👋 Hi, I'm Nusha", "ai");
+    add("AI","Hello 👋 I am Nusha");
 }
 
-// ✅ Send message
-async function sendMessage(){
-    const text = input.value.trim();
-    if(!text) return;
+async function send(){
+    const text = msg.value;
+    msg.value="";
 
-    input.value='';
-    addMessage(text,'user');
+    add("user", text);
 
     const { data:{ session } } = await supabase.auth.getSession();
-    const token = session?.access_token;
 
-    const ai = addMessage("⏳ thinking...","ai");
-
-    const res = await fetch('/chat-stream',{
-        method:'POST',
+    const res = await fetch("/chat-stream", {
+        method:"POST",
         headers:{
-            'Content-Type':'application/json',
-            Authorization:`Bearer ${token}`
+            "Content-Type":"application/json",
+            Authorization:`Bearer ${session.access_token}`
         },
-        body: JSON.stringify({prompt:text, session_id:currentSessionId})
+        body: JSON.stringify({
+            prompt:text,
+            session_id: sessionId
+        })
     });
 
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
-    let full='';
+
+    let out="";
+    const div = add("AI","...");
 
     while(true){
-        const {value,done} = await reader.read();
+        const { value, done } = await reader.read();
         if(done) break;
-        full += decoder.decode(value);
-        ai.innerText = full;
+        out += decoder.decode(value);
+        div.innerText = out;
     }
 }
 
-// UI helper
-function addMessage(text,type){
-    const div=document.createElement('div');
-    const bubble=document.createElement('div');
-    bubble.className=type;
-    bubble.innerText=text;
-    div.appendChild(bubble);
-    messages.appendChild(div);
-    return bubble;
+function add(type,text){
+    const d=document.createElement("div");
+    d.className=type;
+    d.innerText=text;
+    messages.appendChild(d);
+    return d;
 }
-
-// events
-loginBtn.onclick=()=>login(email.value,password.value);
-signupBtn.onclick=()=>signup(email.value,password.value);
-googleBtn.onclick=googleLogin;
-sendBtn.onclick=sendMessage;
-input.addEventListener('keypress',e=>{ if(e.key==='Enter') sendMessage(); });
-
-checkSession();
 </script>
 
 </body>
