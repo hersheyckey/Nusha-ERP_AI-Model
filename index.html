@@ -1,381 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Nusha AI · ERP Intelligence</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.0/github-markdown.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nusha AI – Login</title>
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
-            background: #f4f7fc;
-            color: #1a2c3e;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-        .app-container {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .sidebar {
-            width: 280px;
-            background: #ffffff;
-            border-right: 1px solid #e2e8f0;
-            display: flex;
-            flex-direction: column;
-            padding: 24px 16px;
-            transition: transform 0.25s ease;
-            z-index: 20;
-        }
-
-        /* Animated Logo */
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 28px;
-            cursor: default;
-        }
-        .logo-icon {
-            font-size: 32px;
-            position: relative;
-            display: inline-block;
-            animation: starGlow 2s infinite ease-in-out, starSpin 4s infinite linear;
-            transform-origin: center;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        @keyframes starSpin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        @keyframes starGlow {
-            0% { text-shadow: 0 0 0px rgba(255, 215, 0, 0.2); }
-            50% { text-shadow: 0 0 12px rgba(255, 215, 0, 0.8), 0 0 6px rgba(255, 100, 0, 0.5); }
-            100% { text-shadow: 0 0 0px rgba(255, 215, 0, 0.2); }
-        }
-        .logo-text {
-            font-size: 26px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #1e2a3a, #2c5282, #1e2a3a);
-            background-size: 200% auto;
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            animation: gradientShift 3s ease infinite;
-            letter-spacing: -0.5px;
-        }
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        .logo-icon::after {
-            content: "✨";
-            position: absolute;
-            font-size: 14px;
-            top: -8px;
-            right: -12px;
-            opacity: 0;
-            animation: sparkle 1.5s infinite;
-        }
-        @keyframes sparkle {
-            0% { opacity: 0; transform: scale(0.5); }
-            50% { opacity: 1; transform: scale(1); }
-            100% { opacity: 0; transform: scale(0.5); }
-        }
-
-        .new-chat {
-            background: #1e2a3a;
-            border: none;
-            color: white;
-            font-weight: 600;
-            padding: 12px 16px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .new-chat:hover {
-            background: #0f1a24;
-            transform: translateY(-1px);
-        }
-
-        /* Sidebar footer - only CloudBytes AI */
-        .sidebar-footer {
-            margin-top: auto;
-            font-size: 14px;
-            font-weight: 500;
-            color: #2c5282;
-            text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid #edf2f7;
-            letter-spacing: -0.2px;
-        }
-
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #f8fafc;
-            overflow: hidden;
-        }
-        .header {
-            padding: 14px 20px;
-            background: white;
-            border-bottom: 1px solid #e2e8f0;
-            font-weight: 600;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .menu-btn {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #2d3748;
-            padding: 6px 10px;
-            border-radius: 12px;
-        }
-        .menu-btn:hover {
-            background: #f1f5f9;
-        }
-        .chat-box {
-            flex: 1;
-            padding: 20px 16px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-        .message {
-            max-width: 85%;
-            padding: 12px 18px;
-            border-radius: 24px;
-            font-size: 15px;
-            line-height: 1.5;
-            word-wrap: break-word;
-        }
-        .user {
-            background: #1e2a3a;
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 6px;
-        }
-        .ai {
-            background: white;
-            border: 1px solid #e2e8f0;
-            align-self: flex-start;
-            border-bottom-left-radius: 6px;
-            color: #1a202c;
-        }
-        .ai.markdown-body {
-            padding: 12px 18px;
-        }
-        .ai code {
-            background: #edf2f7;
-            padding: 2px 6px;
-            border-radius: 8px;
-        }
-        .ai pre {
-            background: #edf2f7;
-            padding: 12px;
-            border-radius: 16px;
-            overflow-x: auto;
-        }
-        .input-box {
-            display: flex;
-            padding: 14px 20px;
-            background: white;
-            border-top: 1px solid #e2e8f0;
-            gap: 12px;
-            align-items: center;
-        }
-        .input-box input {
-            flex: 1;
-            padding: 12px 18px;
-            border: 1px solid #cbd5e0;
-            border-radius: 40px;
-            font-size: 15px;
-            outline: none;
-        }
-        .input-box input:focus {
-            border-color: #3182ce;
-            box-shadow: 0 0 0 3px rgba(49,130,206,0.1);
-        }
-        .input-box button {
-            background: #1e2a3a;
-            border: none;
-            color: white;
-            font-weight: 600;
-            padding: 12px 20px;
-            border-radius: 40px;
-            cursor: pointer;
-        }
-        @media (max-width: 700px) {
-            .sidebar {
-                position: fixed;
-                top: 0;
-                left: -280px;
-                bottom: 0;
-                width: 260px;
-                box-shadow: 2px 0 12px rgba(0,0,0,0.1);
-            }
-            .sidebar.open { left: 0; }
-            .menu-btn { display: block; }
-            .message { max-width: 90%; font-size: 14px; }
-            .header { padding: 12px 16px; font-size: 16px; }
-            .input-box { padding: 10px 16px; }
-            .input-box button { padding: 10px 18px; }
-        }
-        .chat-box::-webkit-scrollbar { width: 5px; }
-        .chat-box::-webkit-scrollbar-track { background: #e9ecef; }
-        .chat-box::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 10px; }
-    </style>
+<style>
+body { font-family: system-ui; display:flex; align-items:center; justify-content:center; height:100vh; background:#f0f2f5; margin:0; }
+.modal, .chat { background:white; border-radius:24px; padding:32px; width:400px; box-shadow:0 20px 40px rgba(0,0,0,0.1); }
+.chat { width:800px; max-width:90%; display:flex; flex-direction:column; height:80vh; }
+input, button { width:100%; padding:12px; margin:8px 0; border-radius:40px; border:1px solid #ccc; }
+button { background:#1e2a3a; color:white; cursor:pointer; font-weight:bold; }
+.google-btn { background:#4285F4; }
+.hidden { display:none; }
+.messages { flex:1; overflow-y:auto; border:1px solid #eee; padding:16px; margin-bottom:16px; }
+.user { text-align:right; color:white; background:#1e2a3a; display:inline-block; padding:8px 12px; border-radius:18px; }
+.ai { text-align:left; background:#f1f3f4; display:inline-block; padding:8px 12px; border-radius:18px; }
+.error { color:red; font-size:12px; text-align:center; }
+</style>
 </head>
+
 <body>
-<div class="app-container">
-    <div class="sidebar" id="sidebar">
-        <div class="logo">
-            <div class="logo-icon">✦</div>
-            <div class="logo-text">Nusha</div>
-        </div>
-        <button class="new-chat" onclick="resetConversation()">+ New Chat</button>
-        <div class="sidebar-footer">
-            CloudBytes AI
-        </div>
-    </div>
-    <div class="main">
-        <div class="header">
-            <button class="menu-btn" id="menuBtn">☰</button>
-            <span >Nusha AI · ERP Assistant</span>
-        </div>
-        <div id="chat" class="chat-box"></div>
-        <div class="input-box">
-            <input id="input" placeholder="Ask ERP, sales, inventory..." autofocus />
-            <button onclick="sendMessage()">Send</button>
-        </div>
-    </div>
+
+<div id="modal" class="modal">
+<h2>Nusha AI</h2>
+<button id="googleBtn" class="google-btn">Sign in with Google</button>
+<hr>
+<input type="email" id="email" placeholder="Email">
+<input type="password" id="password" placeholder="Password">
+<button id="loginBtn">Sign in</button>
+<button id="signupBtn">Sign up</button>
+<div id="errorMsg" class="error"></div>
+</div>
+
+<div id="chatContainer" class="chat hidden">
+<div style="font-weight:bold;margin-bottom:16px;">Nusha – ERP Assistant</div>
+<div id="messages" class="messages"></div>
+<div style="display:flex;gap:8px;">
+<input type="text" id="messageInput">
+<button id="sendBtn" style="width:auto;">Send</button>
+</div>
 </div>
 
 <script>
-    // Sidebar toggle
-    const menuBtn = document.getElementById('menuBtn');
-    const sidebar = document.getElementById('sidebar');
-    if (menuBtn && sidebar) {
-        menuBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 700 && sidebar.classList.contains('open') && !sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
-                sidebar.classList.remove('open');
-            }
-        });
-    }
+const SUPABASE_URL = 'https://yobjqkuxarnvgfbkbdee.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlvYmpxa3V4YXJudmdmYmtiZGVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwNTg4NDcsImV4cCI6MjA5MzYzNDg0N30.xm3QWnTap_O6Qfo5-Fu3irL-kLXg7YFaXoqeNrvpG5s';
 
-    // Chat logic
-    const API_BASE = (() => {
-        if (window.location.protocol === 'file:') return 'http://127.0.0.1:8000';
-        return '';
-    })();
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const chatContainer = document.getElementById("chat");
-    let currentSessionId = null;
+let currentSessionId = null;
 
-    function renderMarkdown(text) {
-        return DOMPurify.sanitize(marked.parse(text || ''), { USE_PROFILES: { html: true } });
-    }
-    function addMessage(text, type, isMarkdown = false) {
-        const div = document.createElement("div");
-        div.className = `message ${type}`;
-        if (type === "ai" && isMarkdown) {
-            div.classList.add("markdown-body");
-            div.innerHTML = renderMarkdown(text);
-        } else {
-            div.innerText = text;
-        }
-        chatContainer.appendChild(div);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-        return div;
-    }
-    function updateAIMarkdown(el, raw) {
-        el.classList.add("markdown-body");
-        el.innerHTML = renderMarkdown(raw);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-    async function initSession() {
-        try {
-            const res = await fetch(`${API_BASE}/session`, { method: "POST" });
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const data = await res.json();
-            currentSessionId = data.session_id;
-        } catch(e) { console.warn("Session init failed", e); currentSessionId = null; }
-    }
-    async function resetConversation() {
-        if (currentSessionId) await fetch(`${API_BASE}/session/${currentSessionId}`, { method: "DELETE" }).catch(e=>console.warn);
-        chatContainer.innerHTML = "";
+const modal = document.getElementById('modal');
+const chat = document.getElementById('chatContainer');
+const messages = document.getElementById('messages');
+const input = document.getElementById('messageInput');
+
+function showChat(){ modal.classList.add('hidden'); chat.classList.remove('hidden'); }
+function showLogin(){ modal.classList.remove('hidden'); chat.classList.add('hidden'); }
+
+// ✅ Session check
+async function checkSession(){
+    const { data:{ session } } = await supabase.auth.getSession();
+    if(session){
+        showChat();
         await initSession();
-        addMessage("✨ New session. I'll always give you **multiple options** with trade-offs. Ask me anything about ERP (ERPNext, Odoo), integrations, or business workflows.", "ai", true);
+    } else showLogin();
+}
+
+// ✅ Auth listener (fixes OAuth)
+supabase.auth.onAuthStateChange((event, session)=>{
+    if(session){
+        showChat();
+        initSession();
+    } else showLogin();
+});
+
+// ✅ Login
+async function login(email,password){
+    const { error } = await supabase.auth.signInWithPassword({email,password});
+    if(error){
+        errorMsg.innerText = error.message;
+        return;
     }
-    async function sendMessage() {
-        const inputEl = document.getElementById("input");
-        const text = inputEl.value.trim();
-        if (!text) return;
-        inputEl.value = ""; inputEl.disabled = true;
-        addMessage(text, "user");
-        const aiDiv = addMessage("⏳ thinking...", "ai");
-        let accumulated = "", streamCompleted = false;
-        try {
-            const payload = { prompt: text, session_id: currentSessionId || null };
-            const response = await fetch(`${API_BASE}/chat-stream`, {
-                method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
-            });
-            if (!response.ok) throw new Error(`Server ${response.status}`);
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            while (true) {
-                const { value, done } = await reader.read();
-                if (done) break;
-                accumulated += decoder.decode(value, { stream: true });
-                aiDiv.innerText = accumulated;
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }
-            streamCompleted = true;
-            if (accumulated.trim()) updateAIMarkdown(aiDiv, accumulated);
-            else aiDiv.innerText = "⚠️ No response.";
-        } catch (err) {
-            aiDiv.innerText = `❌ Connection error: ${err.message}`;
-        } finally {
-            inputEl.disabled = false;
-            inputEl.focus();
-            if (!streamCompleted && accumulated === "") aiDiv.innerText = "⚠️ Request interrupted.";
-        }
+}
+
+// ✅ Signup
+async function signup(email,password){
+    const { error } = await supabase.auth.signUp({email,password});
+    if(error){
+        errorMsg.innerText = error.message;
+        return;
     }
-    document.getElementById("input").addEventListener("keypress", (e) => e.key === "Enter" && sendMessage());
-    window.addEventListener("DOMContentLoaded", async () => {
-        await initSession();
-        addMessage("👋 Hi, I'm **Nusha** – your structured ERP advisor. I'll show you options, comparisons, and recommended paths. Try asking: *'How to sync Shopify orders to Odoo?'*", "ai", true);
+    alert("Signup successful");
+}
+
+// ✅ Google
+async function googleLogin(){
+    await supabase.auth.signInWithOAuth({
+        provider:'google',
+        options:{ redirectTo: window.location.origin }
     });
+}
+
+// ✅ Create backend session
+async function initSession(){
+    const { data:{ session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+    if(!token) return;
+
+    const res = await fetch('/session',{
+        method:'POST',
+        headers:{ Authorization:`Bearer ${token}` }
+    });
+
+    const data = await res.json();
+    currentSessionId = data.session_id;
+
+    addMessage("👋 Hi, I'm Nusha", "ai");
+}
+
+// ✅ Send message
+async function sendMessage(){
+    const text = input.value.trim();
+    if(!text) return;
+
+    input.value='';
+    addMessage(text,'user');
+
+    const { data:{ session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+
+    const ai = addMessage("⏳ thinking...","ai");
+
+    const res = await fetch('/chat-stream',{
+        method:'POST',
+        headers:{
+            'Content-Type':'application/json',
+            Authorization:`Bearer ${token}`
+        },
+        body: JSON.stringify({prompt:text, session_id:currentSessionId})
+    });
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let full='';
+
+    while(true){
+        const {value,done} = await reader.read();
+        if(done) break;
+        full += decoder.decode(value);
+        ai.innerText = full;
+    }
+}
+
+// UI helper
+function addMessage(text,type){
+    const div=document.createElement('div');
+    const bubble=document.createElement('div');
+    bubble.className=type;
+    bubble.innerText=text;
+    div.appendChild(bubble);
+    messages.appendChild(div);
+    return bubble;
+}
+
+// events
+loginBtn.onclick=()=>login(email.value,password.value);
+signupBtn.onclick=()=>signup(email.value,password.value);
+googleBtn.onclick=googleLogin;
+sendBtn.onclick=sendMessage;
+input.addEventListener('keypress',e=>{ if(e.key==='Enter') sendMessage(); });
+
+checkSession();
 </script>
+
 </body>
 </html>
