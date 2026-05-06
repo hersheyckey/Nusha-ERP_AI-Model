@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -34,11 +34,8 @@ MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
 MAX_TOKENS = int(os.getenv("MAX_TOKENS", "4096"))
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
-# Critical: ensure API key is present
 if not GROQ_API_KEY:
     logger.error("❌ GROQ_API_KEY environment variable not set. Server will not function.")
-    # In production, you may want to raise an exception or exit
-    # For now, we log but keep running (health check will show error)
 
 # System prompt (structured options focused)
 SYSTEM_PROMPT = """You are **Nusha**, a senior ERP & business solutions architect. Your superpower is presenting **structured options, decision paths, and trade-offs**.
@@ -60,6 +57,22 @@ sessions: dict[str, list] = {}
 class ChatRequest(BaseModel):
     prompt: str
     session_id: str | None = None
+
+# ---------- NEW ROOT ROUTE TO SERVE FRONTEND ----------
+@app.get("/")
+async def root():
+    """Serve the main chat interface (index.html)"""
+    # Try static folder first
+    if os.path.exists("static/index.html"):
+        with open("static/index.html", "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    # Then try root directory
+    elif os.path.exists("index.html"):
+        with open("index.html", "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    else:
+        return {"message": "Frontend not found. Please add index.html to static/ or root."}
+# ----------------------------------------------------
 
 @app.get("/health")
 def health():
@@ -158,6 +171,11 @@ async def _stream(prompt: str, session_id: str | None):
 
     return StreamingResponse(generate(), media_type="text/plain")
 
-# Serve static frontend (optional)
+# Optional: serve other static assets (images, css, etc.) from /static/*
 if os.path.exists("static"):
-    app.mount("/", StaticFiles(directory="static", html=True), name="static")
+    # Mount only for static resources other than index.html (which we already serve)
+    # Using a separate path like '/assets' or keep as fallback
+    # But to avoid conflict, we mount with a different name - or simply keep as is because our root route will match first.
+    # However, if you have CSS files referenced in index.html, they need to be accessible.
+    # The simplest is to mount static folder to /static url:
+    app.mount("/static", StaticFiles(directory="static"), name="static")
