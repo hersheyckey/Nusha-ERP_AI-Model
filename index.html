@@ -1,381 +1,390 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Nusha AI · ERP Intelligence</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.0/github-markdown.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>CloudBytesAI · Nusha AI</title>
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
-            background: #f4f7fc;
-            color: #1a2c3e;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-        .app-container {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
 
-        .sidebar {
-            width: 280px;
-            background: #ffffff;
-            border-right: 1px solid #e2e8f0;
-            display: flex;
-            flex-direction: column;
-            padding: 24px 16px;
-            transition: transform 0.25s ease;
-            z-index: 20;
-        }
+<style>
 
-        /* Animated Logo */
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 28px;
-            cursor: default;
-        }
-        .logo-icon {
-            font-size: 32px;
-            position: relative;
-            display: inline-block;
-            animation: starGlow 2s infinite ease-in-out, starSpin 4s infinite linear;
-            transform-origin: center;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        @keyframes starSpin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        @keyframes starGlow {
-            0% { text-shadow: 0 0 0px rgba(255, 215, 0, 0.2); }
-            50% { text-shadow: 0 0 12px rgba(255, 215, 0, 0.8), 0 0 6px rgba(255, 100, 0, 0.5); }
-            100% { text-shadow: 0 0 0px rgba(255, 215, 0, 0.2); }
-        }
-        .logo-text {
-            font-size: 26px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #1e2a3a, #2c5282, #1e2a3a);
-            background-size: 200% auto;
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            animation: gradientShift 3s ease infinite;
-            letter-spacing: -0.5px;
-        }
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        .logo-icon::after {
-            content: "✨";
-            position: absolute;
-            font-size: 14px;
-            top: -8px;
-            right: -12px;
-            opacity: 0;
-            animation: sparkle 1.5s infinite;
-        }
-        @keyframes sparkle {
-            0% { opacity: 0; transform: scale(0.5); }
-            50% { opacity: 1; transform: scale(1); }
-            100% { opacity: 0; transform: scale(0.5); }
-        }
+:root{
+    --bg:#f6f5f2;
+    --text:#1d1d1f;
+    --muted:#6e6e73;
+    --border:rgba(0,0,0,0.08);
+    --shadow:0 10px 30px rgba(0,0,0,0.06);
+}
 
-        .new-chat {
-            background: #1e2a3a;
-            border: none;
-            color: white;
-            font-weight: 600;
-            padding: 12px 16px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .new-chat:hover {
-            background: #0f1a24;
-            transform: translateY(-1px);
-        }
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
 
-        /* Sidebar footer - only CloudBytes AI */
-        .sidebar-footer {
-            margin-top: auto;
-            font-size: 14px;
-            font-weight: 500;
-            color: #2c5282;
-            text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid #edf2f7;
-            letter-spacing: -0.2px;
-        }
+body{
+    font-family:"Inter", sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    height:100vh;
+    overflow:hidden;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+}
 
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #f8fafc;
-            overflow: hidden;
-        }
-        .header {
-            padding: 14px 20px;
-            background: white;
-            border-bottom: 1px solid #e2e8f0;
-            font-weight: 600;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .menu-btn {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #2d3748;
-            padding: 6px 10px;
-            border-radius: 12px;
-        }
-        .menu-btn:hover {
-            background: #f1f5f9;
-        }
-        .chat-box {
-            flex: 1;
-            padding: 20px 16px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-        .message {
-            max-width: 85%;
-            padding: 12px 18px;
-            border-radius: 24px;
-            font-size: 15px;
-            line-height: 1.5;
-            word-wrap: break-word;
-        }
-        .user {
-            background: #1e2a3a;
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 6px;
-        }
-        .ai {
-            background: white;
-            border: 1px solid #e2e8f0;
-            align-self: flex-start;
-            border-bottom-left-radius: 6px;
-            color: #1a202c;
-        }
-        .ai.markdown-body {
-            padding: 12px 18px;
-        }
-        .ai code {
-            background: #edf2f7;
-            padding: 2px 6px;
-            border-radius: 8px;
-        }
-        .ai pre {
-            background: #edf2f7;
-            padding: 12px;
-            border-radius: 16px;
-            overflow-x: auto;
-        }
-        .input-box {
-            display: flex;
-            padding: 14px 20px;
-            background: white;
-            border-top: 1px solid #e2e8f0;
-            gap: 12px;
-            align-items: center;
-        }
-        .input-box input {
-            flex: 1;
-            padding: 12px 18px;
-            border: 1px solid #cbd5e0;
-            border-radius: 40px;
-            font-size: 15px;
-            outline: none;
-        }
-        .input-box input:focus {
-            border-color: #3182ce;
-            box-shadow: 0 0 0 3px rgba(49,130,206,0.1);
-        }
-        .input-box button {
-            background: #1e2a3a;
-            border: none;
-            color: white;
-            font-weight: 600;
-            padding: 12px 20px;
-            border-radius: 40px;
-            cursor: pointer;
-        }
-        @media (max-width: 700px) {
-            .sidebar {
-                position: fixed;
-                top: 0;
-                left: -280px;
-                bottom: 0;
-                width: 260px;
-                box-shadow: 2px 0 12px rgba(0,0,0,0.1);
-            }
-            .sidebar.open { left: 0; }
-            .menu-btn { display: block; }
-            .message { max-width: 90%; font-size: 14px; }
-            .header { padding: 12px 16px; font-size: 16px; }
-            .input-box { padding: 10px 16px; }
-            .input-box button { padding: 10px 18px; }
-        }
-        .chat-box::-webkit-scrollbar { width: 5px; }
-        .chat-box::-webkit-scrollbar-track { background: #e9ecef; }
-        .chat-box::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 10px; }
-    </style>
+/* soft depth */
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:
+        radial-gradient(circle at 20% 10%, rgba(0,0,0,0.03), transparent 40%),
+        radial-gradient(circle at 80% 90%, rgba(0,0,0,0.02), transparent 45%);
+    pointer-events:none;
+}
+
+.app{
+    display:flex;
+    height:100vh;
+}
+
+/* ================= SIDEBAR ================= */
+
+.sidebar{
+    width:270px;
+    background:#fff;
+    border-right:1px solid var(--border);
+    padding:24px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+}
+
+.sidebar-top{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+/* ================= PREMIUM BADGE ================= */
+
+.badge{
+
+    width:68px;
+    height:68px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    flex-direction:row;
+
+    gap:2px;
+
+    background:linear-gradient(145deg,#0a0a0a,#1c1c1c);
+
+    border-radius:12px;
+
+    box-shadow:
+        0 18px 40px rgba(0,0,0,0.18),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+
+    user-select:none;
+
+    color:#fff;
+}
+
+/* MAIN LOGO TEXT */
+.badge-main{
+    font-size:10px;
+    font-weight:600;
+    letter-spacing:0.8px;
+}
+
+/* AI SMALLER (FIXED) */
+.badge-ai{
+    font-size:7px;
+    font-weight:600;
+    opacity:0.7;
+    transform:translateY(-1px);
+}
+
+/* BUTTON */
+.btn{
+    padding:10px 12px;
+    font-size:12px;
+    font-weight:500;
+    border-radius:10px;
+    border:1px solid var(--border);
+    background:#fafafa;
+    cursor:pointer;
+}
+
+.btn:hover{
+    background:#f2f2f2;
+}
+
+/* ================= BOTTOM BRAND ================= */
+
+.brand-bottom{
+    border-top:1px solid rgba(0,0,0,0.06);
+    padding-top:16px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+}
+
+.brand{
+    font-size:14px;
+    font-weight:600;
+}
+
+.sub{
+    font-size:11px;
+    color:var(--muted);
+    line-height:1.4;
+}
+
+/* ================= MAIN ================= */
+
+.main{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+}
+
+.header{
+    padding:14px 20px;
+    font-size:13px;
+    color:var(--muted);
+    border-bottom:1px solid var(--border);
+    background:#fff;
+}
+
+/* ================= CHAT ================= */
+
+.chat{
+    flex:1;
+    overflow-y:auto;
+    padding:clamp(18px,4vw,40px) clamp(14px,6vw,120px);
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+}
+
+.msg{
+    max-width:720px;
+    padding:14px 16px;
+    border-radius:14px;
+    font-size:13px;
+    line-height:1.6;
+    word-wrap:break-word;
+}
+
+.user{
+    align-self:flex-end;
+    background:#e8f0ff;
+    border:1px solid rgba(0,0,0,0.05);
+}
+
+.ai{
+    align-self:flex-start;
+    background:#fff;
+    border:1px solid var(--border);
+    box-shadow:var(--shadow);
+}
+
+/* ================= INPUT ================= */
+
+.input{
+    display:flex;
+    gap:10px;
+    padding:14px;
+    background:#fff;
+    border-top:1px solid var(--border);
+    padding-bottom: calc(14px + env(safe-area-inset-bottom));
+}
+
+.input input{
+    flex:1;
+    padding:12px;
+    font-size:14px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    background:#fafafa;
+    outline:none;
+}
+
+.input button{
+    padding:10px 14px;
+    font-size:12px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    background:#f5f5f5;
+    cursor:pointer;
+}
+
+.input button:hover{
+    background:#ededed;
+}
+
+/* MOBILE */
+@media(max-width:900px){
+
+    .sidebar{
+        display:none;
+    }
+
+    .chat{
+        padding:18px 14px;
+        gap:12px;
+    }
+
+    .msg{
+        max-width:100%;
+        font-size:14px;
+    }
+
+    .input{
+        padding:10px;
+    }
+}
+
+</style>
 </head>
+
 <body>
-<div class="app-container">
-    <div class="sidebar" id="sidebar">
-        <div class="logo">
-            <div class="logo-icon">✦</div>
-            <div class="logo-text">Nusha</div>
+
+<div class="app">
+
+    <div class="sidebar">
+
+        <div class="sidebar-top">
+
+            <!-- FIXED LOGO -->
+            <div class="badge">
+                <span class="badge-main">NUSHA</span>
+                <span class="badge-ai">AI</span>
+            </div>
+
+            <button class="btn" onclick="resetChat()">New Chat</button>
+
         </div>
-        <button class="new-chat" onclick="resetConversation()">+ New Chat</button>
-        <div class="sidebar-footer">
-            CloudBytes AI
+
+        <div class="brand-bottom">
+
+            <div class="brand">CloudBytesAI</div>
+
+            <div class="sub">
+                Enterprise AI · ERP · Automation · Systems
+            </div>
+
         </div>
+
     </div>
+
     <div class="main">
+
         <div class="header">
-            <button class="menu-btn" id="menuBtn">☰</button>
-            <span >Nusha AI · ERP Assistant</span>
+            ERP Intelligence Assistant
         </div>
-        <div id="chat" class="chat-box"></div>
-        <div class="input-box">
-            <input id="input" placeholder="Ask ERP, sales, inventory..." autofocus />
-            <button onclick="sendMessage()">Send</button>
+
+        <div id="chat" class="chat"></div>
+
+        <div class="input">
+
+            <input id="input" placeholder="Ask ERP, architecture, workflows..." />
+
+            <button onclick="send()">Send</button>
+
         </div>
+
     </div>
+
 </div>
 
 <script>
-    // Sidebar toggle
-    const menuBtn = document.getElementById('menuBtn');
-    const sidebar = document.getElementById('sidebar');
-    if (menuBtn && sidebar) {
-        menuBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 700 && sidebar.classList.contains('open') && !sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
-                sidebar.classList.remove('open');
-            }
-        });
+
+let session=null;
+const chat=document.getElementById("chat");
+
+function add(text,type){
+
+    const d=document.createElement("div");
+
+    d.className=`msg ${type}`;
+
+    if(type==="ai"){
+        d.innerHTML=DOMPurify.sanitize(marked.parse(text));
+    }else{
+        d.innerText=text;
     }
 
-    // Chat logic
-    const API_BASE = (() => {
-        if (window.location.protocol === 'file:') return 'http://127.0.0.1:8000';
-        return '';
-    })();
+    chat.appendChild(d);
+    chat.scrollTop=chat.scrollHeight;
 
-    const chatContainer = document.getElementById("chat");
-    let currentSessionId = null;
+    return d;
+}
 
-    function renderMarkdown(text) {
-        return DOMPurify.sanitize(marked.parse(text || ''), { USE_PROFILES: { html: true } });
-    }
-    function addMessage(text, type, isMarkdown = false) {
-        const div = document.createElement("div");
-        div.className = `message ${type}`;
-        if (type === "ai" && isMarkdown) {
-            div.classList.add("markdown-body");
-            div.innerHTML = renderMarkdown(text);
-        } else {
-            div.innerText = text;
-        }
-        chatContainer.appendChild(div);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-        return div;
-    }
-    function updateAIMarkdown(el, raw) {
-        el.classList.add("markdown-body");
-        el.innerHTML = renderMarkdown(raw);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-    async function initSession() {
-        try {
-            const res = await fetch(`${API_BASE}/session`, { method: "POST" });
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const data = await res.json();
-            currentSessionId = data.session_id;
-        } catch(e) { console.warn("Session init failed", e); currentSessionId = null; }
-    }
-    async function resetConversation() {
-        if (currentSessionId) await fetch(`${API_BASE}/session/${currentSessionId}`, { method: "DELETE" }).catch(e=>console.warn);
-        chatContainer.innerHTML = "";
-        await initSession();
-        addMessage("✨ New session. I'll always give you **multiple options** with trade-offs. Ask me anything about ERP (ERPNext, Odoo), integrations, or business workflows.", "ai", true);
-    }
-    async function sendMessage() {
-        const inputEl = document.getElementById("input");
-        const text = inputEl.value.trim();
-        if (!text) return;
-        inputEl.value = ""; inputEl.disabled = true;
-        addMessage(text, "user");
-        const aiDiv = addMessage("⏳ thinking...", "ai");
-        let accumulated = "", streamCompleted = false;
-        try {
-            const payload = { prompt: text, session_id: currentSessionId || null };
-            const response = await fetch(`${API_BASE}/chat-stream`, {
-                method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
-            });
-            if (!response.ok) throw new Error(`Server ${response.status}`);
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            while (true) {
-                const { value, done } = await reader.read();
-                if (done) break;
-                accumulated += decoder.decode(value, { stream: true });
-                aiDiv.innerText = accumulated;
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }
-            streamCompleted = true;
-            if (accumulated.trim()) updateAIMarkdown(aiDiv, accumulated);
-            else aiDiv.innerText = "⚠️ No response.";
-        } catch (err) {
-            aiDiv.innerText = `❌ Connection error: ${err.message}`;
-        } finally {
-            inputEl.disabled = false;
-            inputEl.focus();
-            if (!streamCompleted && accumulated === "") aiDiv.innerText = "⚠️ Request interrupted.";
-        }
-    }
-    document.getElementById("input").addEventListener("keypress", (e) => e.key === "Enter" && sendMessage());
-    window.addEventListener("DOMContentLoaded", async () => {
-        await initSession();
-        addMessage("👋 Hi, I'm **Nusha** – your structured ERP advisor. I'll show you options, comparisons, and recommended paths. Try asking: *'How to sync Shopify orders to Odoo?'*", "ai", true);
+async function init(){
+    const r=await fetch("/session",{method:"POST"});
+    const d=await r.json();
+    session=d.session_id;
+}
+
+async function send(){
+
+    const input=document.getElementById("input");
+
+    const text=input.value.trim();
+
+    if(!text) return;
+
+    input.value="";
+
+    add(text,"user");
+
+    const ai=add("Thinking...","ai");
+
+    const res=await fetch("/chat-stream",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+            prompt:text,
+            session_id:session
+        })
     });
+
+    const reader=res.body.getReader();
+    const decoder=new TextDecoder();
+
+    let out="";
+
+    while(true){
+        const {value,done}=await reader.read();
+        if(done) break;
+        out+=decoder.decode(value);
+        ai.innerHTML=DOMPurify.sanitize(marked.parse(out));
+    }
+}
+
+async function resetChat(){
+    chat.innerHTML="";
+    await init();
+    add("Apple-style AI ready.","ai");
+}
+
+window.onload=async()=>{
+    await init();
+    add("Welcome to CloudBytesAI — NUSHA AI is ready.","ai");
+};
+
 </script>
+
 </body>
 </html>
